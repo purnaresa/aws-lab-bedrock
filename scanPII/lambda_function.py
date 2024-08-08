@@ -21,7 +21,8 @@ def lambda_handler(event, context):
     model_id = "anthropic.claude-3-haiku-20240307-v1:0"
 
     # Define the prompt for the model.
-    prompt = f"Detect and mask the PII entities in the following text: {content}. Replace each PII entity, including obfuscated or partially obfuscated versions, with asterisks (*) of the same length, while keeping the non-PII content unchanged. Replace the name part of each email address with asterisks (*) of the same length, while keeping the domain and non-PII content unchanged. Do not include any additional text in the output."
+    
+    prompt = f"Detect and mask only the sensitive personally identifiable information (PII) entities and their obfuscated versions in the following text: {content}. Replace each sensitive PII entity, such as names (e.g., J0hn D0e), email addresses (e.g., j0hn.d0e@example.com), phone numbers (including obfuscated versions with special characters or spacing, e.g., o821-1488-68o7), and other personal identifiers, with asterisks (*) of the same length. However, do not mask any non-PII information, such as order numbers (e.g., #12345), product names (e.g., Widget X), or other non-personal data. Keep all non-PII content unchanged. Replace the name part of each email address with asterisks (*) of the same length, while keeping the domain and non-PII content unchanged. Do not include any additional text in the output."
 
     # Format the request payload using the model's native structure.
     native_request = {
