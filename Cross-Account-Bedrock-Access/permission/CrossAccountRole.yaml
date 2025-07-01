@@ -1,0 +1,47 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for creating a cross-account IAM role for Bedrock access'
+
+Parameters:
+  ClientAccountId:
+    Type: String
+    Default: '123456789995'
+    Description: 'AWS Account ID of the client that needs to access Bedrock'
+
+Resources:
+  BedrockCrossAccountRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 'BedrockCrossAccountAccessRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::${ClientAccountId}:role/AssumeBedrockRole'
+            Action: 'sts:AssumeRole'
+            Condition:
+              StringEquals:
+                'sts:ExternalId': !Ref ClientAccountId
+              DateGreaterThan:
+                'aws:CurrentTime': '2024-01-01T00:00:00Z'
+      MaxSessionDuration: 3600
+      Policies:
+        - PolicyName: BedrockLimitedAccess
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'bedrock:InvokeModel'
+                  - 'bedrock:InvokeModelWithResponseStream'
+                Resource: 
+                  - 'arn:aws:bedrock:*::foundation-model/anthropic.claude*'
+                  - 'arn:aws:bedrock:*::foundation-model/amazon.titan*'
+      Path: '/'
+
+Outputs:
+  BedrockCrossAccountRoleARN:
+    Description: 'ARN of the cross-account IAM role for Bedrock access'
+    Value: !GetAtt BedrockCrossAccountRole.Arn
+    Export:
+      Name: 'BedrockCrossAccountRoleARN'

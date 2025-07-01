@@ -1,0 +1,49 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template to create an IAM role and instance profile that can assume the Bedrock cross-account role'
+
+Parameters:
+  BedrockAccountId:
+    Type: String
+    Default: '123456787214'
+    Description: 'AWS Account ID with Bedrock access'
+  CrossAccountRoleName:
+    Type: String
+    Default: 'BedrockCrossAccountAccessRole'
+    Description: 'Name of the cross-account role in the Bedrock account'
+
+Resources:
+  AssumeBedrockRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: 'AssumeBedrockRole'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: 'sts:AssumeRole'
+      Policies:
+        - PolicyName: AssumeBedrockRolePolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action: 'sts:AssumeRole'
+                Resource: !Sub 'arn:aws:iam::${BedrockAccountId}:role/${CrossAccountRoleName}'
+
+  AssumeBedrockInstanceProfile:
+    Type: 'AWS::IAM::InstanceProfile'
+    Properties:
+      InstanceProfileName: 'AssumeBedrockInstanceProfile'
+      Path: '/'
+      Roles: 
+        - !Ref AssumeBedrockRole
+
+Outputs:
+  AssumeBedrockRoleARN:
+    Description: 'ARN of the IAM role that can assume the Bedrock cross-account role'
+    Value: !GetAtt AssumeBedrockRole.Arn
+  AssumeBedrockInstanceProfileARN:
+    Description: 'ARN of the Instance Profile for assuming the Bedrock cross-account role'
+    Value: !GetAtt AssumeBedrockInstanceProfile.Arn
