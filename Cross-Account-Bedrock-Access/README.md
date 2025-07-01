@@ -8,10 +8,10 @@ This project demonstrates **secure cross-account access to Amazon Bedrock** usin
 
 ```
 ┌─────────────────┐    Assume Role    ┌─────────────────┐
-│  Client Account │ ──────────────────▶│ Bedrock Account │
+│  Client Account │ ─────────────────▶│ Bedrock Account │
 │  (123456789995) │                   │  (123456787214) │
 │                 │◀──────────────────│                 │
-└─────────────────┘   Temp Credentials └─────────────────┘
+└─────────────────┘  Temp Credentials └─────────────────┘
 ```
 
 ## 🔒 **Security Features**
